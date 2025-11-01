@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Career Coach</title>
+
+  <style>
+    :root {
+      --primary: #4b9fff;
+      --primary-hover: #1e90ff;
+      --background: #f6faff;
+      --bot-bg: #eaf2fb;
+      --user-bg: #4b9fff;
+      --user-text: #fff;
+      --bot-text: #222;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Roboto, sans-serif;
+      background: var(--background);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: white;
+      text-align: center;
+      padding: 15px 10px;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .content {
+      flex: 1;
+      width: 100%;
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      margin-bottom: 20px;
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.01);
+    }
+
+    #uploadStatus {
+      margin-top: 10px;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    #resumeInfo {
+      display: none;
+      margin-top: 15px;
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 10px;
+      font-size: 15px;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      max-height: 250px;
+    }
+
+    #chatContainer {
+      width: 100%;
+      height: 65vh;
+      overflow-y: auto;
+      background: #f9fbff;
+      border-radius: 10px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      scroll-behavior: smooth;
+    }
+
+    .message {
+      margin: 10px 0;
+      display: flex;
+    }
+
+    .user {
+      justify-content: flex-end;
+    }
+
+    .bot {
+      justify-content: flex-start;
+    }
+
+    .bubble {
+      max-width: 80%;
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-size: 15px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .user .bubble {
+      background: var(--user-bg);
+      color: var(--user-text);
+      border-bottom-right-radius: 6px;
+    }
+
+    .bot .bubble {
+      background: var(--bot-bg);
+      color: var(--bot-text);
+      border-bottom-left-radius: 6px;
+    }
+
+    #inputBar {
+      position: sticky;
+      bottom: 0;
+      background: white;
+      padding: 10px 15px;
+      border-top: 1px solid #ddd;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    #userInput {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      outline: none;
+    }
+
+    #sendBtn, #uploadBtn, #newChatBtn {
+      background: var(--primary);
+      border: none;
+      color: white;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    #sendBtn:hover, #uploadBtn:hover, #newChatBtn:hover {
+      background: var(--primary-hover);
+    }
+
+    .typing {
+      font-style: italic;
+      color: #777;
+      font-size: 14px;
+      padding-left: 10px;
+    }
+
+    #chatControls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    #clearChat {
+      font-size: 14px;
+      color: var(--primary);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        font-size: 20px;
+      }
+      .card {
+        padding: 15px;
+      }
+      .bubble {
+        font-size: 14px;
+      }
+      #userInput {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>🤖 AI Career Coach</header>
+
+  <div class="content">
+    <!-- Upload Resume -->
+    <div class="card" id="uploadCard">
+      <h3>📄 Upload Resume</h3>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <input id="resumeFile" type="file" accept=".pdf,.docx,.doc" style="display:none" />
+        <button id="uploadBtn">Upload Resume</button>
+      </div>
+      <div id="uploadStatus"></div>
+      <div id="resumeInfo"></div>
+    </div>
+
+    <!-- Chat Section -->
+    <div class="card" id="chatCard" style="display: none;">
+      <div id="chatControls">
+        <h3>💬 Chat with your AI Coach</h3>
+        <button id="newChatBtn">🆕 New Chat</button>
+      </div>
+
+      <div id="chatContainer"></div>
+
+      <div id="inputBar">
+        <input type="text" id="userInput" placeholder="Ask something..." onkeydown="handleKey(event)" />
+        <button id="sendBtn" onclick="sendMessage()">Send</button>
+      </div>
+
+      <div id="clearChat" onclick="clearChat()">🗑️ Clear Chat</div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "http://127.0.0.1:8000";
+    let userId = localStorage.getItem("userId") || null;
+    const chatContainer = document.getElementById("chatContainer");
+    const chatCard = document.getElementById("chatCard");
+    const uploadBtn = document.getElementById("uploadBtn");
+    const resumeFileInput = document.getElementById("resumeFile");
+    const uploadStatusEl = document.getElementById("uploadStatus");
+    const parsedResumeEl = document.getElementById("resumeInfo");
+
+    // Load chat history
+    const chatHistory = JSON.parse(localStorage.getItem("chatHistory") || "[]");
+    chatHistory.forEach(({ sender, message }) => appendMessage(sender, message));
+    if (userId) chatCard.style.display = "block";
+
+    // Upload Resume
+    uploadBtn.addEventListener("click", () => resumeFileInput.click());
+
+    resumeFileInput.addEventListener("change", async (ev) => {
+      const file = ev.target.files && ev.target.files[0];
+      if (!file) return;
+
+      uploadStatusEl.textContent = "⏳ Uploading resume...";
+      parsedResumeEl.style.display = "none";
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const resp = await fetch(`${API_URL}/upload_resume/`, { method: "POST", body: formData });
+        const data = await resp.json();
+
+        if (resp.ok && data.user_id) {
+          userId = data.user_id;
+          localStorage.setItem("userId", userId);
+          uploadStatusEl.textContent = "✅ Resume processed successfully!";
+          parsedResumeEl.style.display = "block";
+          parsedResumeEl.textContent = JSON.stringify(data.parsed_resume, null, 2);
+          document.getElementById("uploadCard").style.display = "none";
+          chatCard.style.display = "block";
+        } else {
+          uploadStatusEl.textContent = "❌ Failed to process resume.";
+        }
+      } catch (err) {
+        console.error("Upload error:", err);
+        uploadStatusEl.textContent = "❌ Error during upload.";
+      }
+    });
+
+    function appendMessage(sender, message) {
+      const msg = document.createElement("div");
+      msg.classList.add("message", sender);
+
+      const bubble = document.createElement("div");
+      bubble.classList.add("bubble");
+      bubble.innerText = message;
+
+      msg.appendChild(bubble);
+      chatContainer.appendChild(msg);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function saveMessage(sender, message) {
+      chatHistory.push({ sender, message });
+      localStorage.setItem("chatHistory", JSON.stringify(chatHistory));
+    }
+
+    function handleKey(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
+      }
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const message = input.value.trim();
+      if (!message || !userId) return;
+
+      appendMessage("user", message);
+      saveMessage("user", message);
+      input.value = "";
+
+      const typing = document.createElement("div");
+      typing.classList.add("typing");
+      typing.innerText = "AI is typing...";
+      chatContainer.appendChild(typing);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      try {
+        const resp = await fetch(`${API_URL}/chat/${userId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        });
+
+        const data = await resp.json();
+        typing.remove();
+
+        const answer = data.answer || "⚠️ Sorry, I couldn’t process that.";
+        appendMessage("bot", answer);
+        saveMessage("bot", answer);
+      } catch (error) {
+        typing.remove();
+        appendMessage("bot", "❌ Error connecting to server.");
+        console.error(error);
+      }
+    }
+
+    function clearChat() {
+      localStorage.removeItem("chatHistory");
+      chatContainer.innerHTML = "";
+    }
+
+    document.getElementById("newChatBtn").addEventListener("click", () => {
+      localStorage.removeItem("chatHistory");
+      chatContainer.innerHTML = "";
+      appendMessage("bot", "👋 New chat started. How can I help you today?");
+    });
+  </script>
+</body>
+</html>
