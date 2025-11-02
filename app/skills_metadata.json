@@ -1,0 +1,25 @@
+{
+  "data": {
+    "keywords": ["sql", "python", "power bi", "data engineer", "etl", "azure data factory", "pyspark"],
+    "recommended_skills": ["Python", "SQL", "Azure Data Factory", "Databricks", "Cloud Data Architecture"]
+  },
+  "software": {
+    "keywords": ["java", "c#", ".net", "spring", "angular", "javascript", "node", "react"],
+    "recommended_skills": ["Microservices", "Spring Boot", "API Design", "React", "Clean Architecture"]
+  },
+  "testing": {
+    "keywords": ["selenium", "manual testing", "automation", "qa", "test cases", "junit"],
+    "recommended_skills": ["Automation Frameworks", "Selenium", "API Testing", "Test Strategy"]
+  },
+  "cloud": {
+    "keywords": ["aws", "azure", "gcp", "devops", "terraform", "cloud engineer"],
+    "recommended_skills": ["Azure", "AWS", "DevOps Tools", "Terraform"]
+  },
+  "ai": {
+    "keywords": ["machine learning", "deep learning", "nlp", "artificial intelligence", "pytorch", "tensorflow"],
+    "recommended_skills": ["ML Model Development", "MLOps", "Prompt Engineering", "Data Science Pipelines"]
+  },
+  "generic": {
+    "recommended_skills": ["Problem Solving", "Communication", "Project Management"]
+  }
+}

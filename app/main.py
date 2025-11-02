@@ -12,16 +12,33 @@ from langchain_chroma import Chroma
 from tempfile import gettempdir
 import os
 from langchain_openai import OpenAIEmbeddings, AzureOpenAIEmbeddings
+from fastapi.middleware.cors import CORSMiddleware
 
 
-app = FastAPI()
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+# === FastAPI Setup ===
+app = FastAPI(title="AI Career Coach", version="1.0")
+
+#app.mount("/static", StaticFiles(directory="app/static"), name="static")
+#app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+
+# Allow frontend JS calls
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# In-memory user DB (user_id → Chroma + parsed resume)
 USER_DB = {}
 
-@app.get("/")
-async def root():
-    return FileResponse("app/static/index.html")
 
+# @app.get("/")
+# async def root():
+#     return FileResponse("app/static/index.html")
+
+# === Resume Upload Endpoint ===
 @app.post("/upload_resume/")
 async def upload_resume(file: UploadFile = File(...), user_id: str = Form(None)):
     if user_id is None:
@@ -45,6 +62,7 @@ async def upload_resume(file: UploadFile = File(...), user_id: str = Form(None))
     USER_DB[user_id] = {"chroma": settings.CHROMA_PERSIST_DIR, "parsed": parsed}
     return {"user_id": user_id, "parsed_resume": parsed}
 
+# === Chat Endpoint ===
 @app.post("/chat/{user_id}")
 async def chat(user_id: str, payload: dict):
     if user_id not in USER_DB:
@@ -73,3 +91,8 @@ async def chat(user_id: str, payload: dict):
     # return {"answer": result}
     response = agent.invoke({"question": payload.get("message")})
     return {"answer": response["answer"]}
+
+# === Serve Frontend (keep last!) ===
+# This serves your frontend (index.html, main.js, style.css, etc.)
+FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")

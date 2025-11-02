@@ -1,12 +1,39 @@
+import json
+from pathlib import Path
 from langchain_openai import ChatOpenAI, AzureChatOpenAI
 from langchain_classic.chains import ConversationalRetrievalChain
 from langchain_classic.memory import ConversationBufferMemory
 from langchain_core.prompts import PromptTemplate
 from .config import settings
 
-def build_resume_agent(chroma_store):
+def build_resume_agent(chroma_store, mode="resume_coach"):
+    """
+    Builds a multi-persona AI Career Coach:
+    - Reads prompt from /prompts/<mode>.txt
+    - Loads domain/skill metadata from JSON
+    - Adapts responses based on detected user domain
+    """
+
+    base_dir = Path(__file__).parent
+    prompts_dir = base_dir / "prompts"
+    skills_path = base_dir / "skills_metadata.json"
+
+    # === Load Prompt ===
+    prompt_file = prompts_dir / f"{mode}.txt"
+    if not prompt_file.exists():
+        raise FileNotFoundError(f"Prompt file not found: {prompt_file}")
+    with open(prompt_file, "r", encoding="utf-8") as f:
+        template = f.read()
+
+    # === Load Skills Metadata ===
+    with open(skills_path, "r", encoding="utf-8") as f:
+        skill_meta = json.load(f)    
+
+
+    # === Vector Retriever ===
     retriever = chroma_store.as_retriever(search_kwargs={"k": 4})
 
+    # === LLM Setup ===
     if settings.AZURE_OPENAI_ENDPOINT and settings.AZURE_OPENAI_API_KEY:
         llm = AzureChatOpenAI(
             azure_deployment=settings.AZURE_OPENAI_DEPLOYMENT_NAME,
@@ -20,42 +47,12 @@ def build_resume_agent(chroma_store):
         raise ValueError(
             "No valid LLM configuration found. Please set either Azure OpenAI or OpenAI API credentials.")
 
+    # === Conversation Memory ===
     memory = ConversationBufferMemory(
         memory_key="chat_history", 
         return_messages=True,
         output_key="answer"
     )
-
-    # Custom Prompt — restrict to context-only answers
-    template = """
-    You are an **AI Career Transformation Coach**.
-
-    Your mission:
-    - Help users move from their current skill level → to expert level.
-    - Analyze their resume, identify current expertise and learning gaps.
-    - Recommend clear, structured next steps — each as small, achievable goals.
-    - Engage interactively (offer options, e.g., “Would you like to start with SQL Optimization or Azure Data Factory?”).
-    - Track their learning progress in conversation.
-    - Use the context only (resume + chat history).
-
-    **Rules:**
-    - Stay focused on career, skills, and professional growth.
-    - Never answer outside of career or learning context.
-    - Respond in a motivational, mentor-like tone.
-    - If the question is unrelated to resume, job profile, career development, learning context , or skills, respond with:
-      "I'm sorry, I can only answer questions related to your resume, learning context, job profile, or career advice."
-
-    Context:
-    {context}
-
-    Chat History:
-    {chat_history}
-
-    Question:
-    {question}
-
-    Your Response:
-    """
 
     custom_prompt = PromptTemplate(
         input_variables=["context", "chat_history", "question"],
@@ -72,11 +69,20 @@ def build_resume_agent(chroma_store):
         verbose=True,
     )
 
+    # === Domain Detection Helper ===
+    def detect_domain(text):
+        text_lower = text.lower()
+        for domain, meta in skill_meta.items():
+            if any(kw in text_lower for kw in meta.get("keywords", [])):
+                return domain
+        return "generic"
+
     # Wrapper to add context check before invoking the model
     class ContextAwareAgent:
         def __init__(self, base_chain, retriever):
             self.base_chain = base_chain
             self.retriever = retriever
+            self.skill_meta = skill_meta
 
         def invoke(self, inputs):
             question = inputs.get("question", "")
@@ -87,13 +93,30 @@ def build_resume_agent(chroma_store):
             if not retrieved_docs:
                 return {
                     "answer": (
-                        "I'm sorry, I can only answer questions related to your resume, "
-                        "job profile, or career advice."
+                        "I'm sorry, I can only help with your career growth, "
+                        "skills, or learning recommendations."
                     ),
                     "source_documents": []
                 }
+
+            resume_context = " ".join([doc.page_content for doc in retrieved_docs])
+            detected_domain = detect_domain(resume_context)
+            recommendations = self.skill_meta.get(detected_domain, {}).get("recommended_skills", [])
             
             # Else, pass the question to the main conversational chain
-            return self.base_chain.invoke(inputs)
+            try:
+                return self.base_chain.invoke(inputs)
+            except Exception as e:
+                response = {"answer": f"Sorry, an internal error occurred: {e}", "source_documents": []}
+            
+            # Optionally, add dynamic coaching prompt after resume upload
+            if "resume" in question.lower() or "start" in question.lower():
+                suggestion = ", ".join(recommendations[:3]) if recommendations else "your professional skills"
+                response["answer"] += (
+                    f"\n\n🚀 Let's begin your learning journey! "
+                    f"Would you like me to assess your current level in {suggestion}?"
+                )
+
+            return response
 
     return ContextAwareAgent(agent, retriever)

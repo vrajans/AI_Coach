@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Career Coach</title>
+
+  <!-- External Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+  <header>🤖 AI Career Coach</header>
+
+  <div class="content">
+    <!-- Upload Resume -->
+    <div class="card" id="uploadCard">
+      <h3>📄 Upload Resume</h3>
+      <input type="file" id="resumeFile" accept=".pdf,.docx,.doc" />
+      <select id="domainSelect">
+        <option value="auto">Auto Detect</option>
+        <option value="data_engineer">Data Engineer</option>
+        <option value="backend">Backend Developer</option>
+        <option value="frontend">Frontend Developer</option>
+        <option value="tester">Software Tester</option>
+        <option value="general">General</option>
+      </select>
+      <button id="uploadBtn">Upload & Analyze</button>
+      <div id="uploadStatus"></div>
+      <div id="resumeInfo"></div>
+    </div>
+
+    <!-- Chat Section -->
+    <div class="card" id="chatCard" style="display: none;">
+      <h3>💬 Chat with your AI Coach</h3>
+      <div id="chatContainer"></div>
+
+      <div id="inputBar">
+        <input type="text" id="userInput" placeholder="Ask something..." onkeydown="handleKey(event)" />
+        <button id="sendBtn">Send</button>
+      </div>
+
+      <div id="clearChat">Clear Chat</div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="js/main.js"></script>
+</body>
+</html>
