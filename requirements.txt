@@ -1,11 +1,31 @@
+# --- Core Framework ---
 fastapi
-uvicorn
-langchain
-openai
-chromadb
+uvicorn[standard]
 python-multipart
-docx2txt
-pydantic
-PyPDF2
-streamlit
 requests
+
+# --- LangChain Core & Integrations ---
+langchain
+langchain-openai
+langchain-chroma
+langchain-text-splitters
+langchain-core
+langchain-community
+langchain-classic
+
+# --- Vector DB & Embeddings ---
+chromadb
+pydantic
+pydantic-settings
+
+# --- Resume Parsing / Document Loading ---
+docx2txt
+PyPDF2
+
+# --- Optional: Local Testing / Streamlit UI (you can remove if unused) ---
+streamlit
+
+# --- Utilities ---
+tqdm
+numpy
+python-dotenv
