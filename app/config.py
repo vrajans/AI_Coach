@@ -1,5 +1,6 @@
 import os
 from pydantic_settings import BaseSettings
+from pathlib import Path
 
 class Settings(BaseSettings):
      # Azure OpenAI credentials
@@ -11,8 +12,12 @@ class Settings(BaseSettings):
     # Optional: Add alias for embeddings to avoid breaking imports
     AZURE_EMBEDDING_DEPLOYMENT_NAME: str | None = None
 
+    BASE_DIR = Path(__file__).resolve().parent.parent
+
     # Local configuration
-    CHROMA_PERSIST_DIR: str = "./chroma_db"
+    # CHROMA_PERSIST_DIR: str = "./chroma_db"
+    CHROMA_PERSIST_DIR = os.getenv("CHROMA_PERSIST_DIR", str(BASE_DIR / "data/chroma"))
+    os.makedirs(CHROMA_PERSIST_DIR, exist_ok=True)
 
      # OpenAI (fallback)
     OPENAI_API_KEY: str | None = None

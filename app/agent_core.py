@@ -87,7 +87,7 @@ def build_resume_agent(chroma_store, mode="resume_coach"):
         def invoke(self, inputs):
             question = inputs.get("question", "")
             # Retrieve potential context
-            retrieved_docs = self.retriever.invoke(question)
+            retrieved_docs = self.retriever.invoke(question) or []
             
             # If no relevant documents, skip LLM call
             if not retrieved_docs:
