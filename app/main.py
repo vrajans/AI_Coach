@@ -13,6 +13,8 @@ from tempfile import gettempdir
 import os
 from langchain_openai import OpenAIEmbeddings, AzureOpenAIEmbeddings
 from fastapi.middleware.cors import CORSMiddleware
+from .integrations.dynamic_learning import get_learning_resources
+from .integrations.dynamic_salary import get_salary_for_role
 
 
 # === FastAPI Setup ===
@@ -90,6 +92,25 @@ async def chat(user_id: str, payload: dict):
     # result = agent.run(payload.get("message"))
     # return {"answer": result}
     response = agent.invoke({"question": payload.get("message")})
+    answer = response["answer"]
+
+    # Automatically enhance with learning & salary
+    if any(word in payload["message"].lower() for word in ["learn", "career", "job", "path", "salary", "course"]):
+        parsed_resume = USER_DB[user_id]["parsed"]
+        job_title = parsed_resume.get("job_title") or payload["message"]
+
+        learning_paths = get_learning_resources(job_title)
+        salary_info = get_salary_for_role(job_title)
+
+        if learning_paths:
+            answer += "\n\n**Recommended Learning Paths:**"
+            for c in learning_paths:
+                answer += f"\n- [{c['title']}]({c['url']}) ({c.get('platform', 'Unknown')})"
+
+        if salary_info and salary_info.get("average_salary"):
+            answer += f"\n\n💰 **Average Salary in {salary_info['location']}:** {salary_info['average_salary']} (Source: {salary_info['source']})"
+
+    
     return {"answer": response["answer"]}
 
 # === Serve Frontend (keep last!) ===
