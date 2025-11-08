@@ -1,0 +1,96 @@
+{
+  "data_engineer": {
+    "canonical": "Data Engineer",
+    "aliases": ["data engineer", "etl engineer", "data pipeline engineer", "big data engineer"],
+    "domain": "technology",
+    "skills": ["python", "sql", "spark", "pyspark", "azure", "aws", "etl", "airflow", "snowflake"],
+    "core_skills": ["python", "sql", "spark"]
+  },
+  "software_engineer": {
+    "canonical": "Software Developer",
+    "aliases": ["software engineer", "backend developer", "frontend developer", "fullstack developer"],
+    "domain": "technology",
+    "skills": ["java", "python", "git", "docker", "javascript", "react", "nodejs"],
+    "core_skills": ["java", "git"]
+  },
+  
+  "nurse": {
+    "canonical": "Registered Nurse",
+    "aliases": ["nurse", "clinical nurse", "staff nurse"],
+    "domain": "healthcare",
+    "skills": ["patient care", "vitals", "documentation", "care plans", "emergency response"],
+    "core_skills": ["patient care"]
+  },
+
+  "doctor": {
+    "canonical": "Medical Doctor",
+    "aliases": ["doctor", "physician", "general physician", "mbbs"],
+    "domain": "healthcare",
+    "skills": ["diagnosis", "treatment planning", "clinical skills", "medical procedures"],
+    "core_skills": ["diagnosis"]
+  },
+
+  "teacher": {
+    "canonical": "Teacher",
+    "aliases": ["teacher", "school teacher", "faculty", "instructor"],
+    "domain": "education",
+    "skills": ["lesson planning", "curriculum design", "classroom management", "assessment"],
+    "core_skills": ["lesson planning"]
+  },
+
+  "sales_executive": {
+    "canonical": "Sales Executive",
+    "aliases": ["sales", "sales executive", "account executive", "sales rep"],
+    "domain": "business",
+    "skills": ["lead generation", "client relationship", "negotiation", "crm tools"],
+    "core_skills": ["client relationship"]
+  },
+
+  "marketing_specialist": {
+    "canonical": "Marketing Specialist",
+    "aliases": ["marketing", "digital marketer", "seo specialist"],
+    "domain": "business",
+    "skills": ["seo", "content marketing", "campaign management", "social media"],
+    "core_skills": ["seo"]
+  },
+
+  "accountant": {
+    "canonical": "Accountant",
+    "aliases": ["accountant", "accounts executive", "finance associate"],
+    "domain": "finance",
+    "skills": ["financial reporting", "accounts payable", "accounts receivable", "tax"],
+    "core_skills": ["financial reporting"]
+  },
+
+  "logistics_coordinator": {
+    "canonical": "Logistics Coordinator",
+    "aliases": ["logistics", "supply chain coordinator", "warehouse supervisor"],
+    "domain": "operations",
+    "skills": ["supply chain", "inventory management", "order tracking", "dispatch"],
+    "core_skills": ["supply chain"]
+  },
+
+  "hr_specialist": {
+    "canonical": "HR Specialist",
+    "aliases": ["hr", "hr executive", "talent acquisition", "recruiter"],
+    "domain": "human_resources",
+    "skills": ["recruitment", "employee relations", "payroll", "onboarding"],
+    "core_skills": ["recruitment"]
+  },
+
+  "customer_support": {
+    "canonical": "Customer Support Representative",
+    "aliases": ["customer support", "csr", "contact center agent"],
+    "domain": "customer_service",
+    "skills": ["communication", "ticketing systems", "customer handling", "crm tools"],
+    "core_skills": ["communication"]
+  },
+
+  "generic": {
+    "canonical": "General Professional",
+    "aliases": ["professional", "employee"],
+    "domain": "generic",
+    "skills": ["communication", "teamwork", "problem solving"],
+    "core_skills": ["communication"]
+  }
+}

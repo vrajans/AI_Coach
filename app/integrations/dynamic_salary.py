@@ -10,7 +10,12 @@ def get_salary_for_role(role: str, location: str = "US"):
     Returns average salary and job outlook for the given role.
     Fallback to open salary APIs if CareerOneStop fails.
     """
+    if isinstance(role, tuple):
+        role = role[0]
+
     role = role.strip().lower()
+
+
     headers = {"Authorization": f"Bearer {CAREERONESTOP_TOKEN}"}
     params = {"keyword": role, "location": location}
 
